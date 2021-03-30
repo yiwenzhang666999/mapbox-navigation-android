@@ -1,23 +1,97 @@
 {
   "project_info": {
-    "project_number": "empty-for-debugging",
-    "firebase_url": "empty-for-debugging",
+    "project_number": "623988401858",
+    "firebase_url": "https://mapbox-navigation-android.firebaseio.com",
     "project_id": "mapbox-navigation-android",
-    "storage_bucket": "empty-for-debugging"
+    "storage_bucket": "mapbox-navigation-android.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "empty-for-debugging",
+        "mobilesdk_app_id": "1:623988401858:android:4ee122af1fdd3a7647bd5b",
         "android_client_info": {
           "package_name": "com.mapbox.navigation.examples"
         }
       },
+      "oauth_client": [
+        {
+          "client_id": "623988401858-4mgmram1gvggsqbjjnsnlmpsje3jgnsn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "empty-for-debugging"
+          "current_key": "AIzaSyDt4OMtpwC9r4G9l2Fzyl-1GxL1qiB64vM"
         }
-      ]
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623988401858-4mgmram1gvggsqbjjnsnlmpsje3jgnsn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623988401858:android:532cb2bf6b31e7cb47bd5b",
+        "android_client_info": {
+          "package_name": "com.mapbox.navigation.examples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623988401858-4mgmram1gvggsqbjjnsnlmpsje3jgnsn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDt4OMtpwC9r4G9l2Fzyl-1GxL1qiB64vM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623988401858-4mgmram1gvggsqbjjnsnlmpsje3jgnsn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623988401858:android:b12cb8dfd676519d",
+        "android_client_info": {
+          "package_name": "com.mapbox.services.android.navigation.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623988401858-4mgmram1gvggsqbjjnsnlmpsje3jgnsn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDt4OMtpwC9r4G9l2Fzyl-1GxL1qiB64vM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623988401858-4mgmram1gvggsqbjjnsnlmpsje3jgnsn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

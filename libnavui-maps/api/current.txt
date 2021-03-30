@@ -314,6 +314,12 @@ package com.mapbox.navigation.ui.maps.guidance.junction.view {
 
 package com.mapbox.navigation.ui.maps.internal.route.line {
 
+  public final class CacheResultUtils {
+    method public <P1, R> kotlin.jvm.functions.Function1<P1,R> cacheResult(kotlin.jvm.functions.Function1<? super P1,? extends R>, int maxSize);
+    method public <P1, P2, R> kotlin.jvm.functions.Function2<P1,P2,R> cacheResult(kotlin.jvm.functions.Function2<? super P1,? super P2,? extends R>, int maxSize);
+    field public static final com.mapbox.navigation.ui.maps.internal.route.line.CacheResultUtils INSTANCE;
+  }
+
   public final class MapboxRouteLineApiExtensions {
     method public suspend Object? clearRouteLine(com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi, kotlin.coroutines.Continuation<? super com.mapbox.navigation.ui.base.model.Expected<com.mapbox.navigation.ui.maps.route.line.model.RouteLineClearValue,com.mapbox.navigation.ui.maps.route.line.model.RouteLineError>> p);
     method public suspend Object? findClosestRoute(com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi, com.mapbox.geojson.Point target, com.mapbox.maps.MapboxMap mapboxMap, float padding, kotlin.coroutines.Continuation<? super com.mapbox.navigation.ui.base.model.Expected<com.mapbox.navigation.ui.maps.route.line.model.ClosestRouteValue,com.mapbox.navigation.ui.maps.route.line.model.RouteNotFound>> p);

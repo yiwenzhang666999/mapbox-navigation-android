@@ -22,6 +22,7 @@ import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.navigation.ui.base.internal.model.route.RouteConstants
 import com.mapbox.navigation.ui.base.model.route.RouteLayerConstants
+import com.mapbox.navigation.ui.maps.internal.route.line.CacheResultUtils.cacheResult
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.RouteFeatureData
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
@@ -494,14 +495,11 @@ object MapboxRouteLineUtils {
         return RouteLineGranularDistances(distance, indexArray)
     }
 
-    private fun generateFeatureCollection(
+    private val generateFeatureCollection: (
         route: DirectionsRoute,
         identifier: String?
-    ): RouteFeatureData {
-        val routeGeometry = LineString.fromPolyline(
-            route.geometry() ?: "",
-            Constants.PRECISION_6
-        )
+    ) -> RouteFeatureData = { route: DirectionsRoute, identifier: String? ->
+        val routeGeometry = decodeRoute(route)
         val randomId = UUID.randomUUID().toString()
         val routeFeature = when (identifier) {
             null -> Feature.fromGeometry(routeGeometry, null, randomId)
@@ -510,12 +508,12 @@ object MapboxRouteLineUtils {
             }
         }
 
-        return RouteFeatureData(
+        RouteFeatureData(
             route,
             FeatureCollection.fromFeatures(listOf(routeFeature)),
             routeGeometry
         )
-    }
+    }.cacheResult(3)
 
     /**
      * Builds a [FeatureCollection] representing waypoints from a [DirectionsRoute]
@@ -843,4 +841,12 @@ object MapboxRouteLineUtils {
             else -> y2
         }
     }
+
+    private val decodeRoute: (DirectionsRoute) -> LineString = { route: DirectionsRoute ->
+        LineString.fromPolyline(
+            route.geometry() ?: "",
+            Constants.PRECISION_6
+        )
+    }.cacheResult(3)
+
 }
