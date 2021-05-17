@@ -41,11 +41,14 @@ import com.mapbox.navigation.core.directions.session.RoutesRequestCallback
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
 import com.mapbox.navigation.core.replay.history.ReplayEventBase
+import com.mapbox.navigation.core.replay.history.ReplaySetRoute
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.examples.core.databinding.LayoutActivityRoutelineExampleBinding
+import com.mapbox.navigation.examples.core.replay.HistoryFileLoader
+import com.mapbox.navigation.examples.util.RouteDrawingUtil
 import com.mapbox.navigation.ui.base.model.Expected
 import com.mapbox.navigation.ui.base.model.route.RouteLayerConstants.PRIMARY_ROUTE_TRAFFIC_LAYER_ID
 import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
@@ -63,6 +66,9 @@ import com.mapbox.navigation.ui.maps.route.line.model.RouteLineError
 import com.mapbox.navigation.ui.maps.route.line.model.RouteLineResources
 import com.mapbox.navigation.ui.maps.route.line.model.RouteNotFound
 import com.mapbox.navigation.ui.maps.route.line.model.RouteSetValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 /**
@@ -76,6 +82,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     private val mapboxReplayer = MapboxReplayer()
     private val replayRouteMapper = ReplayRouteMapper()
     private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
+    private val historyFileLoader = HistoryFileLoader()
 
     private val viewBinding: LayoutActivityRoutelineExampleBinding by lazy {
         LayoutActivityRoutelineExampleBinding.inflate(layoutInflater)
@@ -121,6 +128,10 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         RouteLineResources.Builder()
             .routeLineColorResources(routeLineColorResources)
             .build()
+    }
+
+    private val drawingUtil by lazy {
+        RouteDrawingUtil(viewBinding.mapView)
     }
 
     // RouteLine: Additional route line options are available through the MapboxRouteLineOptions.
@@ -199,7 +210,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
             null,
             ContextCompat.getDrawable(
                 this@MapboxRouteLineAndArrowActivity,
-                R.drawable.mapbox_navigation_puck_icon
+                R.drawable.custom_puck
             ),
             null,
             null
@@ -236,6 +247,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     // option is set to `false` (the default) in MapboxRouteLineOptions then it is not necessary
     // to use this listener.
     private val onPositionChangedListener = OnIndicatorPositionChangedListener { point ->
+        drawingUtil.addPoint(point)
         val result = routeLineApi.updateTraveledRouteLine(point)
         mapboxMap.getStyle()?.apply {
             // Render the result to update the map.
@@ -328,7 +340,7 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
 
         // The lines below are related to the navigation simulator.
         mapboxReplayer.pushRealLocation(this, 0.0)
-        mapboxReplayer.playbackSpeed(1.5)
+        mapboxReplayer.playbackSpeed(0.5)
         mapboxReplayer.play()
     }
 
@@ -389,15 +401,20 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
     override fun onMapLongClick(point: Point): Boolean {
         vibrate()
         viewBinding.startNavigation.visibility = View.GONE
-        val currentLocation = navigationLocationProvider.lastLocation
-        if (currentLocation != null) {
-            val originPoint = Point.fromLngLat(
-                currentLocation.longitude,
-                currentLocation.latitude
-            )
-            findRoute(originPoint, point)
-            viewBinding.routeLoadingProgressBar.visibility = View.VISIBLE
-        }
+
+
+        loadHistory()
+
+
+        // val currentLocation = navigationLocationProvider.lastLocation
+        // if (currentLocation != null) {
+        //     val originPoint = Point.fromLngLat(
+        //         currentLocation.longitude,
+        //         currentLocation.latitude
+        //     )
+        //     findRoute(originPoint, point)
+        //     viewBinding.routeLoadingProgressBar.visibility = View.VISIBLE
+        // }
         return false
     }
 
@@ -531,6 +548,26 @@ class MapboxRouteLineAndArrowActivity : AppCompatActivity(), OnMapLongClickListe
         }
 
         override fun onFailure(exception: Exception) {
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun loadHistory() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val events = historyFileLoader.loadReplayHistoryFile(this@MapboxRouteLineAndArrowActivity, "history-file.json")
+//39.0323155 -77.0042631
+            val routeEvent = events.first { it is ReplaySetRoute } as ReplaySetRoute
+
+            mapboxReplayer.clearEvents()
+            mapboxReplayer.pushEvents(events)
+            mapboxNavigation.resetTripSession()
+            mapboxReplayer.playFirstLocation()
+            mapboxNavigation.navigationOptions.locationEngine.getLastLocation(
+                locationEngineCallback
+            )
+            mapboxNavigation.setRoutes(listOf(routeEvent.route!!))
+            viewBinding.startNavigation.visibility = View.VISIBLE
+
         }
     }
 }

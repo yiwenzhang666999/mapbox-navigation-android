@@ -1,5 +1,6 @@
 package com.mapbox.navigation.ui.maps.route.line.api
 
+import android.util.Log
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
@@ -252,6 +253,7 @@ class MapboxRouteLineApi(
             VanishingPointState.DISABLED || System.nanoTime() - lastIndexUpdateTimeNano >
             RouteConstants.MAX_ELAPSED_SINCE_INDEX_UPDATE_NANO
         ) {
+            //Log.e("foobar", "time elapsed condition")
             return Expected.Failure(
                 RouteLineError(
                     "Vanishing point state is disabled or too much time has " +
@@ -267,6 +269,9 @@ class MapboxRouteLineApi(
                 routeLineExpressionData,
                 routeLineOptions.resourceProvider
             )
+        // Log.e("foobar", "Receiving point $point state is ${routeLineOptions.vanishingRouteLine?.vanishingPointState}")
+        // Log.e("foobar", "vanishing offset: ${routeLineOptions.vanishingRouteLine?.vanishPointOffset}")
+
 
         return when (routeLineExpressions) {
             null -> {
@@ -527,14 +532,10 @@ class MapboxRouteLineApi(
             routeProgress.currentLegProgress?.currentStepProgress,
             routeLineOptions.vanishingRouteLine?.primaryRoutePoints
         ) { currentLegProgress, currentStepProgress, completeRoutePoints ->
+            Log.e("foobar", "currentStepProgress.distanceTraveled ${currentStepProgress.distanceTraveled.toDouble()}")
+            Log.e("foobar", "currentStepProgress step distance ${currentStepProgress.step?.distance()}")
+
             var allRemainingPoints = 0
-            /**
-             * Finds the count of remaining points in the current step.
-             *
-             * TurfMisc.lineSliceAlong places an additional point at index 0 to mark the precise
-             * cut-off point which we can safely ignore.
-             * We'll add the distance from the upcoming point to the current's puck position later.
-             */
             /**
              * Finds the count of remaining points in the current step.
              *
@@ -557,10 +558,6 @@ class MapboxRouteLineApi(
              * Add to the count of remaining points all of the remaining points on the current leg,
              * after the current step.
              */
-            /**
-             * Add to the count of remaining points all of the remaining points on the current leg,
-             * after the current step.
-             */
             val currentLegSteps = completeRoutePoints.nestedList[currentLegProgress.legIndex]
             allRemainingPoints += if (currentStepProgress.stepIndex < currentLegSteps.size) {
                 currentLegSteps.slice(
@@ -573,18 +570,10 @@ class MapboxRouteLineApi(
             /**
              * Add to the count of remaining points all of the remaining legs.
              */
-
-            /**
-             * Add to the count of remaining points all of the remaining legs.
-             */
             for (i in currentLegProgress.legIndex + 1 until completeRoutePoints.nestedList.size) {
                 allRemainingPoints += completeRoutePoints.nestedList[i].flatten().size
             }
 
-            /**
-             * When we know the number of remaining points and the number of all points,
-             * calculate the index of the upcoming point.
-             */
             /**
              * When we know the number of remaining points and the number of all points,
              * calculate the index of the upcoming point.
@@ -598,6 +587,7 @@ class MapboxRouteLineApi(
     }
 
     internal fun updateVanishingPointState(routeProgressState: RouteProgressState) {
+        //Log.e("foobar", "Receiving state update $routeProgressState")
         routeLineOptions.vanishingRouteLine?.updateVanishingPointState(routeProgressState)
     }
 

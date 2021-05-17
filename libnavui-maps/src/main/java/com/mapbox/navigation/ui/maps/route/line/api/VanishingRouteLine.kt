@@ -1,5 +1,6 @@
 package com.mapbox.navigation.ui.maps.route.line.api
 
+import android.util.Log
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.base.common.logger.model.Message
 import com.mapbox.base.common.logger.model.Tag
@@ -169,6 +170,16 @@ internal class VanishingRouteLine {
             ) {
                 return null
             }
+
+            val delta = offset - vanishPointOffset
+            // Log.e("foobar", "Receiving point $point")
+            // Log.e("foobar", "updating offset from $vanishPointOffset to $offset delta: ${delta.toBigDecimal()}")
+            // Log.e("foobar", "upcomingIndex is $upcomingIndex")
+            // Log.e("foobar", "upcoming point is $upcomingPoint")
+            // Log.e("foobar", "remainingDistance is ${remainingDistance.toBigDecimal()}")
+            // Log.e("foobar", "index is $index")
+
+
             vanishPointOffset = offset
             val trafficLineExpression = MapboxRouteLineUtils.getTrafficLineExpression(
                 offset,

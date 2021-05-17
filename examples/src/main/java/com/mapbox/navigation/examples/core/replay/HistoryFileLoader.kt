@@ -22,16 +22,26 @@ class HistoryFileLoader(
         } ?: loadDefaultReplayHistory(context)
     }
 
+    /**
+     * @param fileName a file in the assets folder
+     */
+    @SuppressLint("MissingPermission")
+    suspend fun loadReplayHistoryFile(context: Context, fileName: String): List<ReplayEventBase> =
+        withContext(Dispatchers.IO) {
+            val rideHistoryExample = loadHistoryJsonFromAssets(context, fileName)
+            replayHistoryMapper.mapToReplayEvents(rideHistoryExample)
+    }
+
     private suspend fun loadDefaultReplayHistory(
         context: Context
     ): List<ReplayEventBase> = withContext(Dispatchers.IO) {
-        val rideHistoryExample = loadHistoryJsonFromAssets(context)
+        val fileName = "replay-history-activity.json"
+        val rideHistoryExample = loadHistoryJsonFromAssets(context, fileName)
         replayHistoryMapper.mapToReplayEvents(rideHistoryExample)
     }
 
-    private fun loadHistoryJsonFromAssets(context: Context): String {
+    private fun loadHistoryJsonFromAssets(context: Context, fileName: String): String {
         return try {
-            val fileName = "replay-history-activity.json"
             val inputStream: InputStream = context.assets.open(fileName)
             val size: Int = inputStream.available()
             val buffer = ByteArray(size)

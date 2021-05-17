@@ -177,6 +177,11 @@ class VanishingRouteLineTest {
         assertEquals(expectedCasingExpression, result.routeLineCasingExpression.toString())
     }
 
+    @Test
+    fun foobar() {
+
+    }
+
     private fun getRoute(): DirectionsRoute {
         val routeAsJson = loadJsonFixture("short_route.json")
         return DirectionsRoute.fromJson(routeAsJson)

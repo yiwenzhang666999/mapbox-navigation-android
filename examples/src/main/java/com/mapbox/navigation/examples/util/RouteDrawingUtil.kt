@@ -96,9 +96,9 @@ class RouteDrawingUtil(private val mapView: MapView) {
 
             if (!style.styleLayerExists(LINE_END_LAYER_ID)) {
                 CircleLayer(LINE_END_LAYER_ID, LINE_END_SOURCE_ID)
-                    .circleRadius(5.0)
+                    .circleRadius(4.0)
                     .circleOpacity(1.0)
-                    .circleColor(Color.BLACK)
+                    .circleColor(Color.MAGENTA)
                     .bindTo(style)
             }
         }

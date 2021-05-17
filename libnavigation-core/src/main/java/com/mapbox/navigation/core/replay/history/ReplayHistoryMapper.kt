@@ -96,6 +96,25 @@ class ReplayHistoryMapper @JvmOverloads constructor(
                     route = directionsRoute
                 )
             }
+            "initial_route" -> {
+                val directionsRoute = try {
+                    if (event["route"] == "{}") {
+                        null
+                    } else {
+                        DirectionsRoute.fromJson(event["properties"] as String)
+                    }
+                } catch (throwable: Throwable) {
+                    logger?.w(
+                        msg = Message("Unable to setRoute from history file"),
+                        tr = throwable
+                    )
+                    return null
+                }
+                ReplaySetRoute(
+                    eventTimestamp = event["event_timestamp"] as Double,
+                    route = directionsRoute
+                )
+            }
             else -> {
                 val replayEvent = customEventMapper?.map(eventType, event.toMap())
                 if (replayEvent == null) {
