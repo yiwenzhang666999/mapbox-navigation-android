@@ -10,6 +10,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -33,6 +37,7 @@ import com.mapbox.maps.plugin.delegates.listeners.eventdata.MapLoadErrorType
 import com.mapbox.maps.plugin.gestures.OnMapLongClickListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentPlugin
+import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.ExperimentalMapboxNavigationAPI
@@ -73,6 +78,7 @@ import com.mapbox.turf.TurfMeasurement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 class MapboxCameraAnimationsActivity :
     AppCompatActivity(),
@@ -297,14 +303,22 @@ class MapboxCameraAnimationsActivity :
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun init() {
         initRouteLine()
         initAnimations()
         initStyle()
         initCameraListeners()
         initButtons()
+        startNavigation()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startNavigation() {
+        Log.i("kyle_debug", "kyle_debug startNavigation")
         mapboxNavigation.startTripSession()
+        navigationLocationProvider.firstLocation(this) {
+            onMapLongClick(debugDestinPoint)
+        }
     }
 
     private fun initRouteLine() {
@@ -386,6 +400,7 @@ class MapboxCameraAnimationsActivity :
                 object : LocationObserver {
 
                     override fun onRawLocationChanged(rawLocation: Location) {
+                        Log.i("kyle_debug", "kyle_debug onRawLocationChanged ${rawLocation.longitude}, ${rawLocation.latitude}")
                         navigationCamera.requestNavigationCameraToIdle()
                         val point = Point.fromLngLat(rawLocation.longitude, rawLocation.latitude)
                         val cameraOptions = CameraOptions.Builder()
@@ -410,15 +425,19 @@ class MapboxCameraAnimationsActivity :
             registerMapMatcherResultObserver(mapMatcherResultObserver)
         }
 
-        mapboxReplayer.pushRealLocation(this, 0.0)
+        mapboxReplayer.pushEvents(debugOriginEvent)
         mapboxReplayer.playbackSpeed(1.0)
         mapboxReplayer.play()
     }
 
+    private val debugOriginPoint = Point.fromLngLat(16.97292548, 51.04966030)
+    private val debugOriginEvent = listOf(ReplayRouteMapper.mapToUpdateLocation(0.0, debugOriginPoint))
+    private val debugDestinPoint = Point.fromLngLat(16.89039963, 51.03768146)
+
     private fun startSimulation(route: DirectionsRoute) {
         mapboxReplayer.stop()
         mapboxReplayer.clearEvents()
-        mapboxReplayer.pushRealLocation(this, 0.0)
+        mapboxReplayer.pushEvents(debugOriginEvent)
         val replayEvents = replayRouteMapper.mapDirectionsRouteGeometry(route)
         mapboxReplayer.pushEvents(replayEvents)
         mapboxReplayer.seekTo(replayEvents.first())
@@ -429,9 +448,6 @@ class MapboxCameraAnimationsActivity :
         mapboxMap.loadStyleUri(
             MAPBOX_STREETS,
             { style ->
-                binding.mapView.gestures.addOnMapLongClickListener(
-                    this@MapboxCameraAnimationsActivity
-                )
                 style.addSource(poiSource)
                 style.addLayer(poiLayer)
             },
@@ -583,6 +599,7 @@ class MapboxCameraAnimationsActivity :
     override fun onMapLongClick(point: Point): Boolean {
         val currentLocation = navigationLocationProvider.lastLocation
         if (currentLocation != null) {
+            Log.i("kyle_debug", "kyle_debug onMapLongClick ${point.longitude()}, ${point.latitude()}")
             val originPoint = Point.fromLngLat(
                 currentLocation.longitude,
                 currentLocation.latitude
@@ -642,4 +659,41 @@ class MapboxCameraAnimationsActivity :
     }
 
     private fun Number?.formatNumber() = "%.8f".format(this)
+}
+
+private fun NavigationLocationProvider.firstLocation(lifecycleOwner: LifecycleOwner, singleCallback: (location: List<Point>) -> Unit) {
+    val consumer = object : LocationConsumer {
+        override fun onBearingUpdated(
+            vararg bearing: Double,
+            options: (ValueAnimator.() -> Unit)?
+        ) {
+            // Not used
+        }
+
+        override fun onLocationUpdated(
+            vararg location: Point,
+            options: (ValueAnimator.() -> Unit)?
+        ) {
+            Log.i("kyle_debug", "kyle_debug onLocationUpdated")
+            this@firstLocation.unRegisterLocationConsumer(this)
+            singleCallback(location.asList())
+        }
+
+        override fun onPuckBearingAnimatorDefaultOptionsUpdated(options: ValueAnimator.() -> Unit) {
+            // Not used
+        }
+
+        override fun onPuckLocationAnimatorDefaultOptionsUpdated(options: ValueAnimator.() -> Unit) {
+            // Not used
+        }
+
+    }
+    this.registerLocationConsumer(consumer)
+    lifecycleOwner.lifecycle.addObserver(object : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        fun onDestroy() {
+            Log.i("kyle_debug", "kyle_debug onDestroy unRegisterLocationConsumer")
+            unRegisterLocationConsumer(consumer)
+        }
+    })
 }

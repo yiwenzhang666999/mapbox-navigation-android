@@ -144,6 +144,8 @@ class NavigationLocationProvider : LocationProvider {
         latLngTransitionOptions: (ValueAnimator.() -> Unit)? = null,
         bearingTransitionOptions: (ValueAnimator.() -> Unit)? = null
     ) {
+        lastLocation = location
+        lastKeyPoints = keyPoints
         locationConsumers.forEach {
             it.notifyLocationUpdates(
                 location,
@@ -152,8 +154,6 @@ class NavigationLocationProvider : LocationProvider {
                 bearingTransitionOptions
             )
         }
-        lastLocation = location
-        lastKeyPoints = keyPoints
     }
 
     private fun LocationConsumer.notifyLocationUpdates(
