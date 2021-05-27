@@ -1,11 +1,14 @@
 package com.mapbox.navigation.ui.maps.camera.data
 
 import android.location.Location
+import android.util.Log
 import androidx.annotation.UiThread
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.LegStep
 import com.mapbox.base.common.logger.model.Message
 import com.mapbox.base.common.logger.model.Tag
+import com.mapbox.geojson.LineString
+import com.mapbox.geojson.MultiPoint
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.EdgeInsets
@@ -480,7 +483,7 @@ class MapboxNavigationViewportDataSource(
                     currentStepProgress = currentStepProgress
                 )
             }
-
+            Log.i("kyle_debug", "kyle_debug pointsToFrameOnCurrentStep ${MultiPoint.fromLngLats(pointsToFrameOnCurrentStep).toJson()}")
             options.followingFrameOptions.frameGeometryAfterManeuver.run {
                 pointsToFrameAfterCurrentStep = getPointsToFrameAfterCurrentManeuver(
                     frameGeometryAfterManeuverEnabled = enabled,
@@ -759,6 +762,7 @@ class MapboxNavigationViewportDataSource(
         appliedFollowingPadding = cameraFrame.padding!!
 
         updateDebuggerForFollowing(pointsForFollowing)
+
     }
 
     private fun updateOverviewData() {

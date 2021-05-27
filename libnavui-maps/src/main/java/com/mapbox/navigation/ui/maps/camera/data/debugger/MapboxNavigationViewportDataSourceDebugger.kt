@@ -2,12 +2,14 @@ package com.mapbox.navigation.ui.maps.camera.data.debugger
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
+import com.mapbox.geojson.MultiPoint
 import com.mapbox.geojson.Point
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
@@ -232,6 +234,8 @@ class MapboxNavigationViewportDataSourceDebugger @JvmOverloads constructor(
                 overviewPoints
             }
         }
+
+        Log.i("kyle_debug", "kyle_debug updatePoints ${MultiPoint.fromLngLats(points).toJson()}")
 
         val featureCollection = if (points.size > 1) {
             FeatureCollection.fromFeature(Feature.fromGeometry(LineString.fromLngLats(points)))
