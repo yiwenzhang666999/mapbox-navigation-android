@@ -50,6 +50,24 @@ class MapboxNavigationAccountsTest {
     }
 
     @Test
+    fun `obtainSkuToken when resourceUrl notNullOrEmpty but token blank then sku is not added`() {
+        mockkObject(TokenGeneratorProvider)
+        every { TokenGeneratorProvider.getNavigationTokenGenerator() } returns mockk {
+            every { getSKUToken() } returns ""
+        }
+
+        val result = MapboxNavigationAccounts.obtainUrlWithSkuToken(
+            URL("https://www.mapbox.com/some/params/?query=test")
+        )
+
+        assertEquals(
+            URL("https://www.mapbox.com/some/params/?query=test"),
+            result
+        )
+        unmockkObject(TokenGeneratorProvider)
+    }
+
+    @Test
     fun obtainSkuId_is_08() {
         assertEquals("08", MapboxNavigationAccounts.obtainSkuId())
     }

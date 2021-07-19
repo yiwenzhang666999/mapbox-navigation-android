@@ -18,8 +18,11 @@ object MapboxNavigationAccounts : UrlSkuTokenProvider {
         val skuToken = TokenGeneratorProvider.getNavigationTokenGenerator().getSKUToken()
         return URL(
             Uri.parse(resourceUrl.toString())
-                .buildUpon()
-                .appendQueryParameter(SKU_KEY, skuToken)
+                .buildUpon().apply {
+                    if (skuToken.isNotBlank()) {
+                        appendQueryParameter(SKU_KEY, skuToken)
+                    }
+                }
                 .build()
                 .toString()
         )
