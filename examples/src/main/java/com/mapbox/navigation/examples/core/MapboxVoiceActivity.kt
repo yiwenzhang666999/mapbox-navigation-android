@@ -84,7 +84,7 @@ class MapboxVoiceActivity : AppCompatActivity(), OnMapLongClickListener {
      * in the form of speech.
      */
     private val speechApi: MapboxSpeechApi by lazy {
-        MapboxSpeechApi(this, getMapboxAccessTokenFromResources(), Locale.US.language)
+        MapboxSpeechApi(this, getMapboxAccessTokenFromResources(), Locale.SIMPLIFIED_CHINESE.language)// Locale.SIMPLIFIED_CHINESE.language // Locale.US.language
     }
 
     /**
@@ -95,7 +95,7 @@ class MapboxVoiceActivity : AppCompatActivity(), OnMapLongClickListener {
         MapboxVoiceInstructionsPlayer(
             this,
             getMapboxAccessTokenFromResources(),
-            Locale.US.language
+            Locale.SIMPLIFIED_CHINESE.language // Locale.SIMPLIFIED_CHINESE.language   Locale.US.language
         )
     }
 
@@ -153,7 +153,7 @@ class MapboxVoiceActivity : AppCompatActivity(), OnMapLongClickListener {
                     // The data obtained in the form of speech announcement is played using
                     // voiceInstructionsPlayer.
                     voiceInstructionsPlayer.play(
-                        value.announcement,
+                        SpeechAnnouncement.Builder(value.announcement.announcement).build(),
                         voiceInstructionsPlayerCallback
                     )
                 }
@@ -262,7 +262,7 @@ class MapboxVoiceActivity : AppCompatActivity(), OnMapLongClickListener {
 
         binding.addPlay.setOnClickListener {
             voiceInstructionsPlayer.play(
-                SpeechAnnouncement.Builder("Test hybrid speech player.").build(),
+                SpeechAnnouncement.Builder("测试混合语音播放器.").build(),
                 voiceInstructionsPlayerCallback
             )
         }
@@ -297,6 +297,7 @@ class MapboxVoiceActivity : AppCompatActivity(), OnMapLongClickListener {
             .applyDefaultNavigationOptions()
             .applyLanguageAndVoiceUnitOptions(this)
             .accessToken(getMapboxAccessTokenFromResources())
+            .language(Locale.SIMPLIFIED_CHINESE.language)
             .coordinatesList(listOf(origin, destination))
             .voiceInstructions(true)
             .build()
