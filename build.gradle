@@ -1,6 +1,6 @@
 buildscript {
   apply from: "${rootDir}/gradle/dependencies.gradle"
-    repositories {
+  repositories {
     google()
     mavenCentral()
     jcenter()
@@ -83,7 +83,7 @@ allprojects {
           password = "sk.eyJ1IjoieWl3ZW4tMTk5MSIsImEiOiJja3JsdXM1MGExNDJzMzFsaXlvZGhib3hnIn0.it2VwQ6Y9M7VcJkbofY-6Q"
         }
       }
-    } 
+    }
 
     /*maven {
       url 'https://mapbox.bintray.com/mapbox_internal'
